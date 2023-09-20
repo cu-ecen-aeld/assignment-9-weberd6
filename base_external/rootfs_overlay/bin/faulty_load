@@ -1,0 +1,16 @@
+#!/bin/sh
+module="faulty"
+device="faulty"
+mode="664"
+
+# invoke insmod with all arguments we got
+# and use a pathname, as insmod doesn't look in . by default
+modprobe $module $* || exit 1
+
+# retrieve major number
+major=$(awk "\$2==\"$module\" {print \$1}" /proc/devices)
+
+# Remove stale nodes and replace them, then give gid and perms
+rm -f /dev/${device}
+mknod /dev/${device} c $major 0
+chmod $mode /dev/${device}
